@@ -6,8 +6,11 @@ from peewee import *
 
 db= SqliteDatabase('to_do_list.db')
 class ToDo(Model):
-    """Model for creating to-do items. 'done' indicates that it's been completed,
-    'protected' makes it immune to cleanup"""
+    
+    #Model for creating to-do items. 
+    #done indicates that it's been completed,
+    #protected indicated that the task cannot be deleted
+    
     task = CharField(max_length=255)
     timestamp = DateTimeField(default=datetime.datetime.now)
     done = BooleanField(default=False)
@@ -18,18 +21,16 @@ class ToDo(Model):
 
 
 def clear():
-    """Clear the display"""
+    #Clear the display
     os.system('cls' if os.name == 'nt' else 'clear')
 
-
 def initialize():
-    """Connect to database, build tables if they don't exist"""
+    #Connect to database, build tables if they don't exist
     db.connect()
     db.create_tables([ToDo], safe=True)
 
-
 def view_entries(index, entries, single_entry):
-    """"View to-do list"""
+    #View to-do list
     clear()
 
     index = index % len(entries)  # determines which entry is selected for modification
@@ -66,10 +67,9 @@ def view_entries(index, entries, single_entry):
 
 
 def add_entry(index, entries):
-    """Add a new task"""
-
-    new_task = input('\nTo do: ')
-    if input('Protect [yN]? ').lower().strip() == 'y':
+    # Add a new task
+    new_task = input('\nEnter your new To-do: ')
+    if input('Protect [y/n]? ').lower().strip() == 'y': #ask if task need to be protected
         protect = True
     else:
         protect = False
@@ -78,14 +78,14 @@ def add_entry(index, entries):
 
 
 def modify_entry(index, entries):
-    """Modify selected entry"""
+    #Modify selected entry
     entry = view_entries(index, entries, True)[0]
     print('\n\n')
 
     for key, value in sub_menu.items():
         print('{}) {}'.format(key, sub_menu[key].__doc__))
-    print('q) Back to Main')
-    next_action = input('Action: ')
+    print('q) Back to Main Menu')
+    next_action = input('Select Option: ')
 
     if next_action.lower().strip() in sub_menu:
         sub_menu[next_action](entry)
@@ -94,7 +94,7 @@ def modify_entry(index, entries):
 
 
 def cleanup_entries(index, entries):
-    """Cleanup: delete completed, non-protected entries older than a week"""
+    #Cleanup: delete completed, non-protected entries older than a week
     if (input('Have you checked that you protected the important stuff? [yN]').lower().strip() == 'y'):
         now = datetime.datetime.now()
         for entry in entries:
@@ -103,26 +103,26 @@ def cleanup_entries(index, entries):
 
 
 def modify_task(entry):
-    """Modify task"""
+    #Modify task
     new_task = input('> ')
     entry.task = new_task
     entry.save()
 
 
 def delete_entry(entry):
-    """Erase entry"""
+    #Erase entry
     if (input('Are you sure [yN]? ').lower().strip() == 'y'):
         entry.delete_instance()
 
 
 def toggle_done(entry):
-    """Toggle 'DONE'"""
+    #Toggle 'DONE'
     entry.done = not entry.done
     entry.save()
 
 
 def toggle_protection(entry):
-    """Toggle 'protected'"""
+    #Toggle 'protected'
     entry.protected = not entry.protected
     entry.save()
 
